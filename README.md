@@ -6,7 +6,7 @@ Ruby client for [StatusPage](https://www.statuspage.io/) [REST API](https://doer
 
 ```
 gem 'status_page-api', github: "NYULibraries/status_page-api"
-require 'status_page-api'
+require 'status_page/api'
 ```
 
 You must set `STATUS_PAGE_API_KEY` environment variable to your API key.
