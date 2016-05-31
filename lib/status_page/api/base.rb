@@ -39,10 +39,6 @@ module StatusPage
       def api_key
         ENV['STATUS_PAGE_API_KEY'] || raise("Must specify STATUS_PAGE_API_KEY to use StatusPage")
       end
-
-      def page_id
-        ENV['STATUS_PAGE_PAGE_ID'] || raise("Must specify STATUS_PAGE_PAGE_ID to use StatusPage")
-      end
     end
   end
 end
