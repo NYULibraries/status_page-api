@@ -2,165 +2,287 @@ require 'spec_helper'
 require 'status_page'
 
 describe StatusPage::API::Component do
-  describe "class methods" do
-
-    describe "self.list_all" do
-      let(:subject){ described_class.list_all }
-      # stub out request
-      let(:array_response) do
-        [
-          {"status"=>"operational", "name"=>"Library.nyu.edu", "id"=>"abcd"},
-          {"status"=>"operational", "name"=>"E-Shelf", "id"=>"1234"},
-          {"status"=>"operational", "name"=>"Login", "id"=>"wxyz"},
-        ]
-      end
-      before do
-        allow(described_class).to receive(:execute).and_return array_response
-      end
-
-      it { is_expected.to be_a Array }
-
-      it "should return an array of instances" do
-        expect(subject.map(&:class).uniq).to eq [StatusPage::API::Component]
-      end
-
-      it "should execute request with correct parameters" do
-        expect(described_class).to receive(:execute).with("components.json", method: :get)
-        subject
-      end
-
-      it "should initialize instances with attributes from response" do
-        expect(described_class).to receive(:new).with(array_response[0]).once.and_call_original
-        expect(described_class).to receive(:new).with(array_response[1]).once.and_call_original
-        expect(described_class).to receive(:new).with(array_response[2]).once.and_call_original
-        subject
-      end
-    end
-
-    describe "self.find" do
-      let(:component1){ described_class.new({"status"=>"operational", "name"=>"Library.nyu.edu", "id"=>"abcd"}) }
-      let(:component2){ described_class.new({"status"=>"operational", "name"=>"E-Shelf app", "id"=>"1234"}) }
-      let(:component3){ described_class.new({"status"=>"operational", "name"=>"Login app", "id"=>"wxyz"}) }
-      # stub out request
-      before do
-        allow(described_class).to receive(:list_all).and_return [component1, component2, component3]
-      end
-
-      it "should return a component with exact matching id" do
-        expect(described_class.find("wxyz")).to eq component3
-      end
-
-      it "should return nil for case-insensitive match" do
-        expect(described_class.find("wXyz")).to eq nil
-      end
-
-      it "should return nil for non-match" do
-        expect(described_class.find("something")).to eq nil
-      end
-
-      it "should return nil for blank" do
-        expect(described_class.find(nil)).to eq nil
-      end
-    end
-
-    describe "self.find_matching_name" do
-      let(:component1){ described_class.new({"status"=>"operational", "name"=>"Library.nyu.edu", "id"=>"abcd"}) }
-      let(:component2){ described_class.new({"status"=>"operational", "name"=>"E-Shelf app", "id"=>"1234"}) }
-      let(:component3){ described_class.new({"status"=>"operational", "name"=>"Login app", "id"=>"wxyz"}) }
-      # stub out request
-      before do
-        allow(described_class).to receive(:list_all).and_return [component1, component2, component3]
-      end
-
-      it "should return a component with a case-insensitive full matching name" do
-        expect(described_class.find_matching_name("library.nyu.edu")).to eq component1
-      end
-
-      it "should return a component with a case-insensitive partial, full-word matching name" do
-        expect(described_class.find_matching_name("e-shelF")).to eq component2
-        expect(described_class.find_matching_name("logIn")).to eq component3
-      end
-
-      it "should return nil even with a case-insensitive partial, partial-word matching name" do
-        expect(described_class.find_matching_name("library")).to eq nil
-      end
-
-      it "should return nil for a blank parameter" do
-        expect(described_class.find_matching_name("")).to eq nil
-        expect(described_class.find_matching_name(nil)).to eq nil
-      end
-
-      it "should raise an error for ambiguous match" do
-        expect{ described_class.find_matching_name("app") }.to raise_error "Ambiguous name 'app' matches multiple components: [\"E-Shelf app\", \"Login app\"]"
-      end
-
-    end
-  end
 
   describe "instance methods" do
-    let(:attributes){ ({"id"=>"abcd", "name"=>"favorite app", "status"=>"operational"}) }
-    let(:component){ described_class.new attributes }
+    let(:id){ "abcd" }
+    let(:page_id){ "wxyz" }
+    let(:component){ described_class.new id, page_id }
 
     describe "id" do
       subject { component.id }
-      it { is_expected.to eq "abcd" }
+      it { is_expected.to eq id }
     end
 
-    describe "name" do
-      subject { component.name }
-      it { is_expected.to eq "favorite app" }
+    describe "page_id" do
+      subject { component.page_id }
+      it { is_expected.to eq page_id }
     end
 
-    describe "status" do
-      subject { component.status }
-      it { is_expected.to eq "operational" }
+    describe "get" do
+      subject { component.get }
+
+      context "with successful get" do
+        let(:result_attributes) do
+          {
+            "status"=>"operational",
+            "name"=>"Example site",
+            "created_at"=>"2015-07-14T19:41:51.042Z",
+            "updated_at"=>"2016-05-26T21:32:09.450Z",
+            "position"=>1,
+            "description"=>"Hello",
+            "id"=>"abcd",
+            "page_id"=>"wxyz",
+            "group_id"=>"nqrw"
+          }
+        end
+        before { allow(component).to receive(:get_resource).and_return result_attributes }
+
+        it { is_expected.to eq result_attributes }
+
+        context "after load" do
+          before { subject }
+          it "should assign id" do
+            expect(component.id).to eq "abcd"
+          end
+          it "should assign page_id" do
+            expect(component.page_id).to eq "wxyz"
+          end
+          it "should assign status" do
+            expect(component.status).to eq "operational"
+          end
+          it "should assign name" do
+            expect(component.name).to eq "Example site"
+          end
+          it "should assign created_at" do
+            expect(component.created_at).to eq "2015-07-14T19:41:51.042Z"
+          end
+          it "should assign updated_at" do
+            expect(component.updated_at).to eq "2016-05-26T21:32:09.450Z"
+          end
+          it "should assign position" do
+            expect(component.position).to eq 1
+          end
+          it "should assign description" do
+            expect(component.description).to eq "Hello"
+          end
+          it "should assign group_id" do
+            expect(component.group_id).to eq "nqrw"
+          end
+        end
+      end
+
+      context "with unsuccessful get" do
+        before { allow(component).to receive(:get_resource).and_raise RuntimeError, "some error" }
+
+        it "should raise that error" do
+          expect{ subject }.to raise_error RuntimeError, "some error"
+        end
+      end
+    end
+
+    describe "save" do
+      subject { component.save }
+      let(:result_attributes) do
+        {
+          "status"=>"major_outage",
+          "name"=>"Example site",
+          "created_at"=>"2015-07-14T19:41:51.042Z",
+          "updated_at"=>"2016-05-26T21:32:09.450Z",
+          "position"=>4,
+          "description"=>"Hello",
+          "id"=>"abcd",
+          "page_id"=>"wxyz",
+          "group_id"=>"nqrw"
+        }
+      end
+      before { allow(component).to receive(:patch_resource).and_return result_attributes }
+
+      context "with attributes assigned" do
+        let(:attributes) do
+          {
+            "status"=>"major_outage",
+            "name"=>"Example site",
+            "created_at"=>"2015-07-14T19:41:51.042Z",
+            "updated_at"=>"2016-05-26T21:32:09.450Z",
+            "position"=>1,
+            "description"=>"Hello",
+            "id"=>"abcd",
+            "page_id"=>"wxyz",
+            "group_id"=>"nqrw"
+          }
+        end
+        before { component.send(:assign_attributes, attributes) }
+
+        context "with successful response" do
+          it { is_expected.to eq result_attributes }
+
+          it "should call patch_resource with correct hash" do
+            expect(component).to receive(:patch_resource).with({component: {status: "major_outage", description: "Hello", name: "Example site"}})
+            subject
+          end
+
+          it "should assign any changed attributes" do
+            subject
+            expect(component.position).to eq 4
+          end
+        end
+
+        context "with unsuccessful response" do
+          before { allow(component).to receive(:patch_resource).and_raise RuntimeError, "some error" }
+
+          it "should raise that error" do
+            expect{ subject }.to raise_error RuntimeError, "some error"
+          end
+        end
+      end
+
+      context "with attributes unassigned" do
+        it "should not call patch_resource" do
+          expect(component).to_not receive(:patch_resource)
+          subject
+        end
+      end
     end
 
     describe "failing?" do
       subject { component.failing? }
       context "when status operational" do
+        before { component.status = "operational" }
         it { is_expected.to be_falsy }
       end
       context "when status not operational" do
-        before { attributes["status"] = "major_outage" }
+        before { component.status = "major_outage" }
         it { is_expected.to be_truthy }
       end
     end
 
-    describe "update_status" do
-      before { allow(component).to receive(:update_attribute) }
+    describe "status=" do
+      subject { component.status = status_type }
+      let(:status_type){ "major_outage" }
 
-      it "should execute update_attribute if given a valid status" do
-        expect(component).to receive(:update_attribute).with(:status, "major_outage")
-        component.update_status "major_outage"
+      it "should assign status" do
+        subject
+        expect(component.status).to eq status_type
       end
 
-      it "should raise an error if given an invalid status" do
-        expect{ component.update_status "xyz" }.to raise_error "Status 'xyz' not recognized. Valid statuses: [\"operational\", \"degraded_performance\", \"partial_outage\", \"major_outage\"]"
+      context "with invalid status" do
+        let(:status_type){ "xyz" }
+        it "should raise error" do
+          expect{ subject }.to raise_error "Status 'xyz' not recognized. Valid statuses: [\"operational\", \"degraded_performance\", \"partial_outage\", \"major_outage\"]"
+        end
       end
     end
 
-    describe "update_attribute" do
-      let(:result_attributes){ attributes.merge("status"=>"major_outage", "description"=>"something") }
-      before { allow(component).to receive(:execute).and_return result_attributes }
+    describe "resource_path" do
+      subject { component.resource_path }
+      it { is_expected.to eq "pages/#{page_id}/components/#{id}.json" }
+    end
 
-      it "should execute request with correct parameters" do
-        expect(component).to receive(:execute).with("components/abcd.json", method: :patch, payload: "component[status]=major_outage")
-        component.update_attribute :status, "major_outage"
+    describe "assign_attributes" do
+      subject { component.assign_attributes attributes }
+
+      context "given valid attributes with string keys" do
+        let(:attributes) do
+          {
+            "status"=>"operational",
+            "name"=>"Example site",
+            "created_at"=>"2015-07-14T19:41:51.042Z",
+            "updated_at"=>"2016-05-26T21:32:09.450Z",
+            "position"=>1,
+            "description"=>"Hello",
+            "id"=>"abcd",
+            "page_id"=>"wxyz",
+            "group_id"=>"nqrw"
+          }
+        end
+
+        it { is_expected.to eq attributes }
+
+        context "after call" do
+          before { subject }
+          it "should assign id" do
+            expect(component.id).to eq "abcd"
+          end
+          it "should assign page_id" do
+            expect(component.page_id).to eq "wxyz"
+          end
+          it "should assign status" do
+            expect(component.status).to eq "operational"
+          end
+          it "should assign name" do
+            expect(component.name).to eq "Example site"
+          end
+          it "should assign created_at" do
+            expect(component.created_at).to eq "2015-07-14T19:41:51.042Z"
+          end
+          it "should assign updated_at" do
+            expect(component.updated_at).to eq "2016-05-26T21:32:09.450Z"
+          end
+          it "should assign position" do
+            expect(component.position).to eq 1
+          end
+          it "should assign description" do
+            expect(component.description).to eq "Hello"
+          end
+          it "should assign group_id" do
+            expect(component.group_id).to eq "nqrw"
+          end
+        end
       end
 
-      it "should return result of execute" do
-        expect(component.update_attribute :status, "major_outage").to eq result_attributes
+      context "given valid attributes with symbol keys" do
+        let(:attributes) do
+          {
+            status: "operational",
+            name: "Example site",
+            created_at: "2015-07-14T19:41:51.042Z",
+            updated_at: "2016-05-26T21:32:09.450Z",
+            position: 1,
+            description: "Hello",
+            id: "abcd",
+            page_id: "wxyz",
+            group_id: "nqrw"
+          }
+        end
+
+        it { is_expected.to eq attributes }
+
+        context "after call" do
+          before { subject }
+          it "should assign id" do
+            expect(component.id).to eq "abcd"
+          end
+          it "should assign page_id" do
+            expect(component.page_id).to eq "wxyz"
+          end
+          it "should assign status" do
+            expect(component.status).to eq "operational"
+          end
+          it "should assign name" do
+            expect(component.name).to eq "Example site"
+          end
+          it "should assign created_at" do
+            expect(component.created_at).to eq "2015-07-14T19:41:51.042Z"
+          end
+          it "should assign updated_at" do
+            expect(component.updated_at).to eq "2016-05-26T21:32:09.450Z"
+          end
+          it "should assign position" do
+            expect(component.position).to eq 1
+          end
+          it "should assign description" do
+            expect(component.description).to eq "Hello"
+          end
+          it "should assign group_id" do
+            expect(component.group_id).to eq "nqrw"
+          end
+        end
       end
 
-      it "should assign result as attributes" do
-        component.update_attribute :status, "major_outage"
-        expect(component.status).to eq "major_outage"
-        expect(component.description).to eq "something"
-      end
+      context "given empty hash" do
+        let(:attributes){ {} }
 
-      it "should raise error if given unrecognized attribute name" do
-        expect{ component.update_attribute :data, "new data" }.to raise_error "Attribute 'data' not recognized. Valid attributes: [\"name\", \"description\", \"status\"]"
+        it { is_expected.to eq attributes }
       end
     end
   end
