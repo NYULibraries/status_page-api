@@ -27,7 +27,7 @@ You can then interact with the instance as if it were an array:
 ```
 component_list[0]
 component_list.map(&:id)
-component.each do |component|
+component_list.each do |component|
   # do something with component
 end
 ```
