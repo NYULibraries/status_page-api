@@ -18,6 +18,7 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
 require 'support/modify_env'
+require 'pry'
 
 RSpec.configure do |config|
 

@@ -6,9 +6,8 @@ module StatusPage
       def execute(path, method:, **options)
         default_options = {headers: headers, method: method, url: get_full_url(path)}
         JSON.parse(RestClient::Request.execute(default_options.merge(options)))
-      rescue RestClient::UnprocessableEntity => e
-        error_message = JSON.parse(e.response)["error"].join(", ")
-        raise(error_message)
+      rescue ::RestClient::Exception => e
+        raise Exception.new(e)
       end
 
       # sends GET request for subclass's resource_path and returns json result as hash
