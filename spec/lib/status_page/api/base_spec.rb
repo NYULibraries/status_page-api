@@ -53,7 +53,7 @@ describe StatusPage::API::Base do
         end
       end
 
-      context "given 422 response" do
+      context "given response known to RestClient (422)" do
         # stub out request/response
         let(:error){ RestClient::UnprocessableEntity.new }
         let(:json_response){ {"error" => ["Something went wrong"]}.to_json }
@@ -63,7 +63,23 @@ describe StatusPage::API::Base do
         end
 
         it "should raise validation error parsed from response" do
-          expect{ base.execute "sample/path.json", method: :patch }.to raise_error "Something went wrong"
+          expect{ base.execute "sample/path.json", method: :patch }.to raise_error StatusPage::API::Exception, "Unprocessable Entity (Something went wrong)"
+        end
+      end
+
+      context "given response unknown to RestClient (420)" do
+        # stub out request/response
+        let(:error){ RestClient::RequestFailed.new }
+        let(:json_response){ {"error" => "Slow your roll"}.to_json }
+        let(:http_code){ 420 }
+        before do
+          allow(RestClient::Request).to receive(:execute).and_raise error
+          allow(error).to receive(:response).and_return json_response
+          allow(error).to receive(:http_code).and_return http_code
+        end
+
+        it "should raise validation error parsed from response" do
+          expect{ base.execute "sample/path.json", method: :patch }.to raise_error StatusPage::API::Exception, "HTTP status code 420 (Slow your roll)"
         end
       end
 
@@ -75,7 +91,7 @@ describe StatusPage::API::Base do
         end
 
         it "should raise the error" do
-          expect{ base.execute "sample/path.json", method: :patch }.to raise_error error
+          expect{ base.execute "sample/path.json", method: :patch }.to raise_error StatusPage::API::Exception, "Resource Not Found (NO RESPONSE)"
         end
       end
     end
