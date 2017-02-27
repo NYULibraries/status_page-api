@@ -5,8 +5,8 @@ module StatusPage
       MUTABLE_ATTRIBUTES = %i[name description status]
       IMMUTABLE_ATTRIBUTES = %i[id page_id group_id created_at updated_at position]
 
-      attr_accessor *MUTABLE_ATTRIBUTES
-      attr_reader *IMMUTABLE_ATTRIBUTES
+      attr_accessor(*MUTABLE_ATTRIBUTES)
+      attr_reader(*IMMUTABLE_ATTRIBUTES)
 
       STATUSES = %w[operational degraded_performance partial_outage major_outage]
       SUCCESS_STATUS = 'operational'

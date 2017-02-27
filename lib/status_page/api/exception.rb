@@ -19,9 +19,9 @@ module StatusPage
         return "NO RESPONSE" unless rest_client_error.response
         error_text = JSON.parse(rest_client_error.response)["error"]
         error_text.is_a?(Array) ? error_text.join(", ") : error_text
-      rescue JSON::ParserError => e
+      rescue JSON::ParserError
         rest_client_error.response
-      rescue NoMethodError => e
+      rescue NoMethodError
         rest_client_error.response
       end
     end
