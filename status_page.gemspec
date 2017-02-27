@@ -20,10 +20,10 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.1'
   s.add_dependency 'rest-client', '>= 2.0'
-  s.add_dependency 'json'
+  s.add_dependency 'json', '>= 1.0'
 
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'climate_control'
-  s.add_development_dependency 'pry'
-  s.add_development_dependency 'coveralls'
+  s.add_development_dependency 'rspec', '~> 3.5'
+  s.add_development_dependency 'climate_control', '~> 0.1'
+  s.add_development_dependency 'pry', '~> 0.10'
+  s.add_development_dependency 'coveralls', '~> 0.8'
 end
