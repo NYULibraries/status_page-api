@@ -33,7 +33,7 @@ describe StatusPage::API::Exception do
       let(:rest_client_error){ RestClient::ResourceNotFound.new }
       let(:response){ "NO RESPONSE" }
 
-      it { is_expected.to eq "Resource Not Found (NO RESPONSE)" }
+      it { is_expected.to eq "Not Found (NO RESPONSE)" }
     end
   end
 

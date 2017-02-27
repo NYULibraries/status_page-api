@@ -91,7 +91,7 @@ describe StatusPage::API::Base do
         end
 
         it "should raise the error" do
-          expect{ base.execute "sample/path.json", method: :patch }.to raise_error StatusPage::API::Exception, "Resource Not Found (NO RESPONSE)"
+          expect{ base.execute "sample/path.json", method: :patch }.to raise_error StatusPage::API::Exception, "Not Found (NO RESPONSE)"
         end
       end
     end

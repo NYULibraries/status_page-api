@@ -18,6 +18,11 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/NYULibraries/status_page'
   s.license     = 'MIT'
 
-  s.required_ruby_version = '>= 1.9.3'
-  s.add_dependency 'rest-client', '>= 1.0'
+  s.required_ruby_version = '>= 2.1'
+  s.add_dependency 'rest-client', '>= 2.0'
+  s.add_dependency 'json'
+
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'climate_control'
+  s.add_development_dependency 'pry'
 end
