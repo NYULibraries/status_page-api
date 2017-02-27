@@ -1,5 +1,10 @@
 # StatusPage::API
 
+[![NYU](https://github.com/NYULibraries/nyulibraries-assets/blob/master/lib/assets/images/nyu.png)](https://dev.library.nyu.edu)
+[![Build Status](https://travis-ci.org/NYULibraries/status_page-api.svg)](https://travis-ci.org/NYULibraries/status_page-api)
+[![Code Climate](https://codeclimate.com/github/NYULibraries/status_page-api/badges/gpa.svg)](https://codeclimate.com/github/NYULibraries/status_page-api)
+[![Coverage Status](https://coveralls.io/repos/github/NYULibraries/status_page-api/badge.svg?branch=development)](https://coveralls.io/github/NYULibraries/status_page-api?branch=development)
+
 Ruby client for [StatusPage](https://www.statuspage.io/) [REST API](https://doers.statuspage.io/api/v1/).
 
 ## Installation
